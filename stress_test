@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# Check to see if the 'pip' is installed in the Raspberry Pi (it should be
+# installed by default but it's good to check
+PIPCHECK=$(which pip3)
+
+if [[ $PIPCHECK != '/usr/bin/pip3' ]]
+then	
+	echo "Installing python3-pip" 
+	sudo apt install python3-pip
+fi
+
+# Check to see if the 'stress' program is installed.
+STRESSCHECK=$(which stress)
+
+if [[ $STRESSCHECK != '/usr/bin/stress' ]]
+then
+	echo "Installing 'stress' program"
+	sudo apt install stress
+fi
+
+# Check to see if the 'stressberry' program is installed.
+BERRYCHECK=$(which stressberry-run)
+
+if [[ $BERRYCHECK != '/usr/local/bin/stressberry-run' ]]
+then
+	echo "Installing 'stressberry' program"
+	sudo pip3 install stressberry
+fi
+
+# Begin stress test and shows the higest temperature value
+echo "Baking the Stressberry-pie! Check back in around 10-20 minutes."
+OUTPUT=$(stressberry-run out.dat | tee results.txt && 
+	grep "Current temperature" ./results.txt | 
+	cut -d' ' -f3 | sort -rn | head -n 1)
+#echo "Highest temperature is $OUTPUT"
+
+# Plot out the datapoints to ensure that it ramped up correctly
+echo "Generating graph..."
+stressberry-plot out.dat -o ~/Desktop/graph.png
+xdg-open ~/Desktop/graph.png
+
+
