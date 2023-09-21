@@ -30,14 +30,31 @@ fi
 
 # Begin stress test and shows the higest temperature value
 echo "Baking the Stressberry-pie! Check back in around 10-20 minutes."
-OUTPUT=$(stressberry-run out.dat | tee results.txt && 
-	grep "Current temperature" ./results.txt | 
-	cut -d' ' -f3 | sort -rn | head -n 1)
-#echo "Highest temperature is $OUTPUT"
+stressberry-run out.dat | tee results.txt 
+
+echo -en '\n'
+
+echo "Highest temperature is ..."
+grep "Current temperature" ./results.txt | cut -d' ' -f3 | sort -rn | head -n 1
+
+echo -en '\n'
 
 # Plot out the datapoints to ensure that it ramped up correctly
 echo "Generating graph..."
 stressberry-plot out.dat -o ~/Desktop/graph.png
 xdg-open ~/Desktop/graph.png
 
+echo -en '\n'
 
+echo "Testing network connections..."
+ping -c5 -I eth0 google.com
+echo "Ethernet:"
+ping -c5 -I wlan0 google.com
+echo "WiFi:"
+
+echo -en "\n"
+
+echo "Finding system model & RAM amount..."
+cat /proc/cpuinfo | grep "Model"
+echo "RAM amount:"
+free --giga -h
